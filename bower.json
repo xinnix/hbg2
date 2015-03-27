@@ -12,6 +12,9 @@
     "angular-sanitize": "~1.2",
     "angular-ui-utils": "~0.1.1",
     "angular-ui-router": "~0.2.11",
-    "semantic-ui": "~1.11.5"
+    "semantic-ui": "~1.11.5",
+    "bootstrap": "~3.3.4",
+    "common": "~0.2.5",
+    "bootstrap-paginator": "~1.0.2"
   }
 }
