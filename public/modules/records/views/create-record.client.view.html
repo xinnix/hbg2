@@ -2,28 +2,68 @@
     <div class="page-header">
         <h1>借 书</h1>
     </div>
-    <div class="col-md-12">
-        <form class="form-horizontal" data-ng-submit="create()" novalidate>
-            <fieldset>
-                <div class="form-group">
-                    <label class="control-label" for="card_number">会员</label>
-                    <div class="controls">
-                        <input type="text" data-ng-model="member.card_number" id="card_number" class="form-control" placeholder="member card_number" required>
+    <div class="ui divider"></div>
+    <div class="content" style="position: relative">
+        <div class="ui two column middle aligned relaxed fitted stackable grid">
+            <div class=" aligned column">
+                <div class="field">
+                    <div class="ui left icon input">
+                        <input type="text" placeholder="会员卡号" ng-model="card_number">
+                        <i class="payment icon"></i>
                     </div>
-                </div> 
-                <div class="form-group">
-                    <label class="control-label" for="book">book inv code</label>
-                    <div class="controls">
-                        <input type="text" data-ng-model="member.card_number" id="card_number" class="form-control" placeholder="member card_number" required>
+                    <span ng-show="member && !member_invalid_msg.length"><i class="checkmark green icon"></i>{{member.baby_name}} 本次最多可借&nbsp;&nbsp;<a href="#">{{member.max_book - on_rent_book}}</a>&nbsp;&nbsp;本 [{{on_rent_book}}借阅中/{{member.max_book}}单次最大借阅数]</span>
+
+                    <div class="ui negative message" ng-show="member && member_invalid_msg.length">
+                            账户 {{member.baby_name}} 存在问题： <p>{{member_invalid_msg}}</p>
                     </div>
                 </div>
-                <div class="form-group">
-                    <input type="submit" ng-if="member._id" class="btn btn-default">
+                <br/>
+                <div class="field">
+                    <div class="ui left icon input">
+                        <input type="text" placeholder="搜索绘本"  ng-model="keyword">
+                        <i class="barcode icon"></i>
+                    </div>
                 </div>
-				<div data-ng-show="error" class="text-danger">
-					<strong data-ng-bind="error"></strong>
-				</div>
-            </fieldset>
-        </form>
+                
+                <div class="ui divided list" ng-show="inventories" ng-repeat="inventory in inventories">
+                    <div class="item">
+                        <div class="header">
+                            <a class="ui small green inverted button" ng-hide="inventory.isRent" ng-click="select($index)">
+                                选中
+                            </a>
+                            <a class="ui small inverted button" ng-show="inventory.isRent" ng-click="clear($index)">已借出</a>
+                            <span>{{ inventory.inv_code }}-{{ inventory.name }} {{inventory.isbn}} </span>
+                        </div>
+                        <span ng-show="inventory.tags.length">{{ inventory.tags }}</span>
+                    </div>
+                </div>
+            </div>
+            
+             <h4 class="ui horizontal header divider">
+                <i class="book chart icon"></i>
+                书单
+            </h4>
+           
+
+            <div class="column">
+                <div class="ui negative message" ng-show="member && select_inventories.length > member.max_book-on_rent_book">
+                    超过本次最多借阅数. {{err_msg}}
+                </div>
+                <div class="ui divided list" ng-show="select_inventories" ng-repeat="inventory in select_inventories">
+                    <div class="item">
+                        <div >
+                            <a class="ui small basic button red " ng-click="remove($index)">  
+                                不选
+                            </a>
+                            &nbsp;&nbsp;[ {{$index+1}} ]  {{ inventory.inv_code }}-{{ inventory.name }} {{inventory.isbn}} 
+                        </div>
+                    </div>
+                </div>
+                     
+                <a class="green ui button " ng-show="member && select_inventories.length && select_inventories.length <= member.max_book-on_rent_book" ng-click="saveRecord()">
+                    Yeah,借走
+                </a>
+            </div>
+        </div>
     </div>
 </section>

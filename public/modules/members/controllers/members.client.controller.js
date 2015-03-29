@@ -1,23 +1,33 @@
 'use strict';
 
 // Members controller
-angular.module('members').controller('MembersController', ['$scope', '$stateParams', '$location', 'Authentication', 'Members',
-	function($scope, $stateParams, $location, Authentication, Members) {
+angular.module('members').controller('MembersController', ['$scope', '$http', '$stateParams', '$location', 'Authentication', 'Members', 'Records' , 'Inventories',
+	function($scope, $http, $stateParams, $location, Authentication, Members, Records, Inventories) {
 		$scope.authentication = Authentication;
-
+		$scope.records = [];
 		// Create new Member
 		$scope.create = function() {
 			// Create new Member object
-			var member = new Members ({
-				name: this.name
-			});
+			var member = new Members({
+				phone_number: this.phone_number,
+				baby_name: this.baby_name,
+				baby_birthday: this.baby_birthday,
+				isBoy: this.isBoy,
+				card_number: this.card_number,
+				valid_days: this.valid_days,
+				level: this.level,
+				parent_name: this.parent_name,
+				address: this.address,
+				email: this.email,
+				weixin: this.weixin,
+				other: this.other
+            });
+			
 
 			// Redirect after save
 			member.$save(function(response) {
 				$location.path('members/' + response._id);
 
-				// Clear form fields
-				$scope.name = '';
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});
@@ -63,11 +73,41 @@ angular.module('members').controller('MembersController', ['$scope', '$statePara
 			});
 		};
 
-        // Find member by name
-        $scope.findByCardNumber = function(card_number) {   
-            $scope.member = Members.get({
-                card_number: card_number
+        // // TODO: Find member by name
+        // $scope.findByCardNumber = function() {   
+        //     $scope.member = Members.get({
+        //         card_number: $stateParams.card_number
+        //     });
+        // };
+        $scope.findHistroyRecords = function() {
+        	$scope.findOne();
+        	$http({
+                method: 'GET',
+                url: '/records/member/' + $stateParams.memberId
+            })
+            .success(function(data, err) {
+            	$scope.records = data;
             });
         };
-	}
+
+        // return book. update the record , update the inventory.
+        $scope.returnBook = function (index) {
+        	var _record = $scope.records[index];
+
+        	Records.get({recordId: _record._id}, function (record, err) {
+        		record.return_date = Date.now();
+        		record.status = 'A';
+        		record.$update();
+
+        		// update the dom
+        		$scope.records[index].return_date = record.return_date ;
+        		$scope.records[index].status = 'A';
+        	});
+
+        	var inventory = new Inventories(_record.inventory);
+            inventory.isRent = false;
+            inventory.$update();
+
+        };
+ 	}
 ]);

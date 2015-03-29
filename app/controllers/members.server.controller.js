@@ -13,7 +13,6 @@ var mongoose = require('mongoose'),
  */
 exports.create = function(req, res) {
 	var member = new Member(req.body);
-	member.user = req.user;
 
 	member.save(function(err) {
 		if (err) {
@@ -96,6 +95,19 @@ exports.memberByID = function(req, res, next, id) {
 	});
 };
 
+
+/**
+ * Member middleware find one member by card_number
+ */
+exports.memberByCardNumber = function (req, res, next, card_number) {
+    Member.findOneByCardNumber(card_number, function(err, member) {
+        if (err) return next(err);
+        if (! member) return next(new Error('Faild to load Member with card_number ' + card_number));
+        req.member = member;
+        next();
+    });
+};
+
 /** 
  * function to test if 'admin'  in the roles array
  */
@@ -115,8 +127,7 @@ var isAdmin = function (roles) {
 exports.hasAuthorization = function(req, res, next) {
     // TODO: if user.role is admin ; ok
     // TODO: if user.member is req.member._id
-    
-    if (!isAdmin(req.user.roles) && req.member.id !== req.user.member.id) {
+    if (!isAdmin(req.user.roles) && req.member._id !== req.user.member) {
         return res.status(403).send('User is not authorized');
     }
 	next();
